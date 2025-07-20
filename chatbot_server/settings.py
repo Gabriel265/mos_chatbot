@@ -13,8 +13,8 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "your-backend-host.onrender.com",
-    "malawionlineservises.vercel.app"
+    "https://mos-chatbot.onrender.com",
+    "https://malawionlineservises.vercel.app"
 ]
 
 
