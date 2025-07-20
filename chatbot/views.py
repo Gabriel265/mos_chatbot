@@ -13,7 +13,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 @csrf_exempt
 def chatbot_view(request):
     if request.method != 'POST':
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
     try:
         body = json.loads(request.body)
@@ -22,46 +22,52 @@ def chatbot_view(request):
         if not user_message:
             return JsonResponse({"reply": "Please type something."})
 
-        # === Simple local logic ===
-        # Later, replace this with Dialogflow or GPT API
-        if "tutor" in user_message.lower():
-            bot_reply = "We offer expert private tutoring in a range of subjects. What level or topic are you interested in?"
-        elif "marketing" in user_message.lower():
-            bot_reply = "We can help with digital marketing, content, SEO, and more. Want to chat with our marketing team?"
-        elif "programming" in user_message.lower():
-            bot_reply = "We provide full-stack and custom software solutions. What kind of project do you have in mind?"
-        elif "ict" in user_message.lower():
-            bot_reply = "Our ICT services include support, training, and systems setup. What are you looking for?"
-        elif "data" in user_message.lower():
-            bot_reply = "We analyze and visualize data for businesses, research, and more. Would you like to schedule a consultation?"
-        elif "personal assistant" in user_message.lower() or "pa" in user_message.lower():
-            bot_reply = "Our personal assistant services cover scheduling, email management, and more. Need help managing your day?"
-        else:
-            bot_reply = f"You said: {user_message}"
+        # Smart reply logic
+        msg = user_message.lower()
 
-        # === Save user + bot messages to Supabase ===
-        supabase_messages = [
+        if any(word in msg for word in ["tutor", "lesson", "english", "math", "chemistry", "physics"]):
+            bot_reply = "We offer private tutoring in English, Math, Chemistry, and more. Would you like to book a session?"
+        elif any(word in msg for word in ["software", "app", "development", "programming", "website"]):
+            bot_reply = "We build custom web, Android, and desktop software solutions. Tell us what you need built."
+        elif any(word in msg for word in ["ict", "support", "troubleshooting", "network", "dhis2"]):
+            bot_reply = "Our ICT services cover troubleshooting, training, networking, and DHIS2 support. What’s the issue?"
+        elif any(word in msg for word in ["graphic", "design", "logo", "poster", "branding", "canva"]):
+            bot_reply = "We design logos, posters, and branding materials. What kind of design do you need?"
+        elif any(word in msg for word in ["marketing", "seo", "social", "campaign", "grow", "ads"]):
+            bot_reply = "We help with SEO, social media, and marketing campaigns. What are you looking to promote?"
+        elif any(word in msg for word in ["assistant", "pa", "schedule", "documents"]):
+            bot_reply = "We offer virtual PA services for scheduling, task management, and more. Need help organizing?"
+        elif any(word in msg for word in ["ai", "automation", "chatgpt", "bot", "jasper", "dalle"]):
+            bot_reply = "Our AI services cover content generation, images, and task automation. How can we help?"
+        elif any(word in msg for word in ["data", "excel", "python", "r", "dashboard", "survey", "research"]):
+            bot_reply = "We analyze data using Excel, Python, R, Power BI, and more. Need data cleaning or visualization?"
+        else:
+            bot_reply = "I’m still learning about that! Try asking about tutoring, marketing, programming, design, or data work."
+
+        # Prepare headers
+        headers = {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_KEY,
+        }
+
+        # Prepare messages
+        messages = [
             {"sender": "user", "text": user_message},
             {"sender": "bot", "text": bot_reply}
         ]
 
-        headers = {
-            "apikey": SUPABASE_KEY,
-            "Authorization": f"Bearer {SUPABASE_KEY}",
-            "Content-Type": "application/json"
-        }
-
-        res = requests.post(
-            f"{SUPABASE_URL}/rest/v1/chat_messages",
-            headers=headers,
-            json=supabase_messages
-        )
-
-        if res.status_code not in [200, 201]:
-            print("Supabase error:", res.text)
+        # Send messages to Supabase
+        for msg in messages:
+            res = requests.post(
+                f"{SUPABASE_URL}/rest/v1/chat_messages?apikey={SUPABASE_KEY}",
+                headers=headers,
+                json=msg
+            )
+            if res.status_code not in [200, 201]:
+                print(f"❌ Error sending {msg['sender']} message: {res.text}")
 
         return JsonResponse({"reply": bot_reply})
 
     except Exception as e:
-        print("Backend error:", str(e))
-        return JsonResponse({"reply": "Oops! Something went wrong on our end."}, status=500)
+        print("Unhandled error:", str(e))
+        return JsonResponse({"reply": "Oops! Something went wrong on our end."})
