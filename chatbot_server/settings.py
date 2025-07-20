@@ -13,15 +13,26 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "https://mos-chatbot.onrender.com",
-    "https://malawionlineservises.vercel.app"
+    "mos-chatbot.onrender.com",
+    "malawionlineservises.vercel.app"
 ]
+
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Local dev frontend
-    os.getenv("FRONTEND_URL", ""),  # Add frontend domain if deployed
+    "http://localhost:5173",
+    "https://malawionlineservises.vercel.app",
+    "https://mos-chatbot.onrender.com"
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://malawionlineservises.vercel.app",
+    "http://localhost:5173",
+    "https://mos-chatbot.onrender.com"
+]
+
+
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
