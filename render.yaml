@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: chatbot-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn chatbot_server.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: chatbot_server.settings
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: SUPABASE_URL
+        value: https://aixuzoejgrpbwoxndfly.supabase.co
+      - key: SUPABASE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpeHV6b2VqZ3JwYndveG5kZmx5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDQwMzAwOSwiZXhwIjoyMDY1OTc5MDA5fQ.tq6jIib0NdiG6ay2RO6ns_t6tgy3RGMc3dIEwPHiTgQ
